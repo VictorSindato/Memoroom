@@ -1,0 +1,4 @@
+Using facebook's graph API to get my social graph:
+- What information am I allowed to get about my friends?
+
+Using object-oriented representation for the characters
