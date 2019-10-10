@@ -2,3 +2,16 @@ Using facebook's graph API to get my social graph:
 - What information am I allowed to get about my friends?
 
 Using object-oriented representation for the characters
+- Understand how I'm getting information about the characters?
+-
+
+Representation:
+- General function for making changes to the character's attribute representation eg. change from string to list
+- bubblenet: Rewrite all the hard-coded information for smooth transition to another social circle
+
+
+Idea generation:
+- What are the things I'd want to do/learn/discover if I had a visualization of my entire facebook network?
+  : Who I've interacted with the most and the [least?] (maybe use slider for this?)
+
+Learning:
