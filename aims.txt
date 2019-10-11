@@ -14,4 +14,10 @@ Idea generation:
 - What are the things I'd want to do/learn/discover if I had a visualization of my entire facebook network?
   : Who I've interacted with the most and the [least?] (maybe use slider for this?)
 
-Learning:
+- When a different ego is selected, resize every circle to radius size proportional to their relationship with ego and increase proximity
+  : On centering ego, change the link-forces (specifically, strength) between that ego node and the rest of the nodes to be dependent on the closeness of their relationship.
+  This is a search problem since the other link-forces between the other nodes stay the same.
+
+Experimentation:
+- Git branch
+ : Zooming in on image on hover
