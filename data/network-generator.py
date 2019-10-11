@@ -1,24 +1,22 @@
 import json
 import os
 import networkx as nx
-from networkx.readwrite import json_graph 
+from networkx.readwrite import json_graph
 
 
 with open('characters.json') as file:
    # Converting json object to python dictionary
    data = json.load(file)
 
-family_groups = []
-
 ''' Testing purposes '''
-color_mapping = {"Delgado":0,"Dunphy":1,"Other":2,"Pritchett":3,"Ramirez":4,"Tucker":5,"Tucker-Pritchett":6}
+family_group = {"Delgado":0,"Dunphy":1,"Other":2,"Pritchett":3,"Ramirez":4,"Tucker":5,"Tucker-Pritchett":6}
 
 for character,profile in data.items():
-   data[character]["color_mapping"] = 0
+   data[character]["family_group"] = 0
    if type(profile["group"])==str:
-      data[character]["color_mapping"] = color_mapping[profile["group"]]
+      data[character]["family_group"] = family_group[profile["group"]]
    else:
-      data[character]["color_mapping"] = color_mapping[profile["group"][0]]
+      data[character]["family_group"] = family_group[profile["group"][0]]
 
 co_appearance = {}
 
@@ -26,7 +24,7 @@ character_list = list(data)
 
 for character in character_list:
    try:
-      os.mkdir("./Characters/Individual/"+character)
+      os.mkdir("../assets/Characters/ProfileImages/"+character)
    except FileExistsError:
       print("Folder ",character," already exists")
 
@@ -49,7 +47,7 @@ for character in character_list:
          data[character]["co_appearances"][actor] = co_appearances
          co_appearances = 0
 
-attribute_list = ["age","appearances","caregiver","gender","group","origin","profileImage","color_mapping"]
+attribute_list = ["age","appearances","caregiver","gender","group","origin","profileImage","family_group"]
 
 graph = nx.Graph(name="Modern Family", node_attributes=attribute_list)
 
@@ -70,7 +68,7 @@ for character, profile in data.items():
       if attribute in attribute_list:
          graph.nodes[character][attribute] = value
       graph.nodes[character]["ego"] = False
-      graph.nodes[character]["profileImage"] = "./Characters/ProfileImages/"+character+"/2.jpg"
+      graph.nodes[character]["profileImage"] = "../assets/Characters/ProfileImages/"+character+"/2.jpg"
 
 data = json_graph.node_link_data(graph)
 
