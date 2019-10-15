@@ -14,6 +14,7 @@ var svg = d3.select("#layout")
 
 // Setting up patterns for filling svg circles with images
 var defs = svg.append("defs");
+
 function pattern(id,imageWidth,imageHeight,character){
 	d3.select("defs")
 	 .append("pattern")
@@ -52,7 +53,7 @@ d3.json("./data/network.json", function(error, graph){
 	var initialDimensionality = 2;
 
 	// Appending nodes data from network.json to svg circles
-	let node = svg.append("g")
+	let nodes = svg.append("g")
 		.attr("class","nodes")
         .attr("stroke","#727272")
         .attr("stroke-width",1)
@@ -71,28 +72,34 @@ d3.json("./data/network.json", function(error, graph){
 			.attr("r", function(d){return size(d.appearances,initialDimensionality,initialScalingFactor)});
 
 	// Appending links data from network.json to svg lines
-	let link = svg.append("g")
+	let links = svg.append("g")
 		.attr("class","links")
 		.selectAll("line")
 		.data(graph.links)
 		.enter().append("line")
 			.attr("stroke-width",0)
+			.attr("stroke-opacity", 0.1)
 			//.attr("stroke-width",function(d){return Math.sqrt(Math.sqrt(d.weight));})
-			.attr("stroke","black");
+			.attr("stroke","gray");
+
+	/// HELPER FUNCTIONS ///
+	function getDefaultDistance(datum){
+		if (datum.weight===0){
+			return 1;
+		}
+		else {
+			return 5/Math.pow(datum.weight,1/4);
+		}
+	}
 
 	// Adding nodes, forces, and tick eventListener to simulation
 	simulation
 	   .nodes(graph.nodes)
 	   .force("link", d3.forceLink(graph.links).id(function(d){return d.id;}).distance(function(d){
-	   		if(d.weight===0){
-	   			return 4;
-	   		} else {
-	   			//console.log(5/Math.pow(d.weight,1/4));
-	   			return 5/Math.pow(d.weight,1/4);
-	   		}
-	   }).strength(1))
+	   		return getDefaultDistance(d);
+	   }))
 	   .force("collide", d3.forceCollide(graph.nodes).radius(function(d){return size(d.appearances,initialDimensionality,initialScalingFactor) + d.nodePadding;}).iterations(3))
-	   .force("xAxis", d3.forceX(width/2))
+		 .force("xAxis", d3.forceX(width/2))
 	   .force("yAxis", d3.forceY(height/2))
 	   .on("tick",tick);
 
@@ -138,24 +145,20 @@ d3.json("./data/network.json", function(error, graph){
 			simulation
 				.alpha(0.1).restart()
 				.force("link", d3.forceLink(graph.links).id(function(d){return d.id;}).distance(function(d){
-					if(d.weight===0){
-			   			return 1;
-			   		} else {
-			   			return 5/Math.pow(d.weight,1/4);
-			   		}
+					return getDefaultDistance(d);
 				}))
 				.force("center",d3.forceCenter(width/2,height/2));
 		})
 
-	dragHandler(node);
+	nodes.call(dragHandler);
 
 	// Handling simulation's tick event
 	function tick(){
-		node
+		nodes
 			.attr("cx",function(d){ return d.x; })
 			.attr("cy",function(d){ return d.y; })
 
-		link
+		links
 			.attr("x1", function(d){ return d.source.x; })
 			.attr("y1", function(d){ return d.source.y; })
 			.attr("x2", function(d){ return d.target.x; })
@@ -163,8 +166,8 @@ d3.json("./data/network.json", function(error, graph){
 	}
 
 	// Centering ego & modifying nodes' and links' positions accordingly
-	function centerEgo(){
-		node
+	function centerEgo(ego_id){
+		nodes
 			.attr("cx",function(d){
 				if(d.ego){
 					d.x = width/2;
@@ -182,7 +185,7 @@ d3.json("./data/network.json", function(error, graph){
 				}
 			});
 
-		link
+		links
 			.attr("x1", function(d){
 				if(d.ego){
 					d.source.x = width/2;
@@ -205,19 +208,24 @@ d3.json("./data/network.json", function(error, graph){
 			.attr("y2", function(d){
 				return d.target.y;
 			})
-	}
 
-	// Event handling
-
-	// Zoom node's inside image on hover
-	const nodes = document.querySelectorAll("svg g circle");
-	for (var i=0; i<nodes.length; i++){
-		//nodes[i].addEventListener("mouseover",function(){console.log("Hover happened!")},false);
+		simulation
+			.alpha(0.1).restart()
+			.force("link", d3.forceLink(graph.links).id(d=>d.id).distance(
+				function(d){
+					if (d.source.id === ego_id){
+						return 5/Math.pow(d.weight, 1/2);
+					}
+					else {
+						return getDefaultDistance(d);
+					}
+				})
+			)
 	}
 
 
 	// Centering and colouring border of ego node
-	node
+	nodes
 		/*
 		Check each circle's id. If its id matches the id of the node that has been dblclick'd, change its stroke and stroke-width.
 		Otherwise, set stroke and stroke-width to standard style.
@@ -261,7 +269,7 @@ d3.json("./data/network.json", function(error, graph){
 					.nodes(graph.nodes)
 		   			.force("link",d3.forceLink(graph.links).id(function(d){return d.id;}))
 		   			.force("collide", d3.forceCollide(graph.nodes).radius(function(d){return size(d.appearances,controls.dimensionality,controls.radius) + d.nodePadding;}).iterations(3))
-					.on("tick", centerEgo);
+					.on("tick", centerEgo(egoCircleId));
 		});
 
 
@@ -313,12 +321,7 @@ d3.json("./data/network.json", function(error, graph){
 			.force("charge",d3.forceManyBody())
 			.nodes(graph.nodes)
    			.force("link",d3.forceLink(graph.links).id(function(d){return d.id;}).distance(function(d){
-   				if(d.weight===0){
-		   			return 4;
-		   		} else {
-		   			//console.log(5/Math.pow(d.weight,1/4));
-		   			return 5/Math.pow(d.weight,1/4);
-		   		}
+   				return getDefaultDistance(d);
    			}))
    			.force("collide", d3.forceCollide(graph.nodes).radius(function(d){return size(d.appearances,controls.dimensionality,controls.radius) + d.nodePadding;}).iterations(3))
 			.on("tick", tick);
