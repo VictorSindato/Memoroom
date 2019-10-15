@@ -21,3 +21,5 @@ Idea generation:
 Experimentation:
 - Git branch
  : Zooming in on image on hover
+
+- Write helper functions
