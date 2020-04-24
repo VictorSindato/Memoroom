@@ -4,7 +4,7 @@
 BubbleNet is an ongoing project whose current focus is developing an interface for Alzheimer’s patients that'll enable interaction with and reinforcement of their memories about objects, people, and places. The motivation behind the project is designing an engaging, reliable, and fluid interface that can be used on a daily basis to counter the memory loss brought resulting from Alzheimer’s disease. Thus, the core components of memoroom are its data-driven interactive visualizations for graphs.
 
 <p align="center">
-	<img src="https://github.com/VictorSindato/Memoroom/blob/master/assets/memoroom.jpg" alt="memoroom interface"/>
+	<img src="/assets/memoroom.jpg" alt="memoroom interface"/>
 </p>
 
 ## Getting Started
